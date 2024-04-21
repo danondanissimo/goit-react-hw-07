@@ -13,14 +13,18 @@ const filtersSlice = createSlice({
   initialState: INITIAL_STATE,
   // Об'єкт редюсерів
   reducers: {
-    selectContacts(state, action) {
+    filterContacts(state, action) {
       state.filters.name = action.payload;
     },
   },
 });
 
 // Генератори екшенів
-export const { selectContacts } = filtersSlice.actions;
+export const { filterContacts } = filtersSlice.actions;
 
 // Редюсер слайсу
 export const filtersReducer = filtersSlice.reducer;
+
+export const selectFilter = (state) => {
+  return state.filter.filters.name;
+};
