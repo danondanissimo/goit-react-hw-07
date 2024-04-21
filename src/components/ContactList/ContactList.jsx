@@ -1,10 +1,19 @@
+import { useDispatch, useSelector } from "react-redux";
 import Contact from "../Contact/Contact.jsx";
 import css from "./ContactList.module.css";
+import { selectFilteredContacts } from "../../redux/contactsSlice.js";
+import { apiDeleteContact } from "../../redux/contactsOps.js";
 
-const ContactList = ({ contacts, deleteContact }) => {
+const ContactList = () => {
+  const dispatch = useDispatch();
+  const filteredContacts = useSelector(selectFilteredContacts);
+
+  const onDeleteContact = (contactId) => {
+    dispatch(apiDeleteContact(contactId));
+  };
   return (
     <ul className={css.list}>
-      {contacts.map((contact) => {
+      {filteredContacts.map((contact) => {
         // console.log("contact.name", contact.name);
 
         return (
@@ -13,7 +22,8 @@ const ContactList = ({ contacts, deleteContact }) => {
               name={contact.name}
               number={contact.number}
               id={contact.id}
-              deleteContact={deleteContact}
+              createdAt={contact.createdAt}
+              deleteContact={onDeleteContact}
             />
           </li>
         );
