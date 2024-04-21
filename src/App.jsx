@@ -1,66 +1,41 @@
 import "./App.css";
 
-import { useMemo } from "react";
+import { useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
 import ContactList from "./components/ContactList/ContactList.jsx";
 
-import { nanoid } from "nanoid";
 import ContactForm from "./components/ContactForm/ContactForm";
 import SearchBox from "./components/SearchBox/SearchBox.jsx";
-import { addContact, deleteContact } from "./redux/contactsSlice.js";
-import { selectContacts } from "./redux/filtersSlice.js";
+
+import { apiFetchContacts } from "./redux/contactsOps.js";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage.jsx";
+
+import Loader from "./components/Loader/Loader.jsx";
+
+import { selectError, selectLoading } from "./redux/contactsSlice.js";
 
 function App() {
   const dispatch = useDispatch();
 
-  const contacts = useSelector((state) => {
-    return state.contact.contacts.items;
-  });
+  const isLoading = useSelector(selectLoading);
 
-  const filter = useSelector((state) => {
-    return state.filter.filters.name;
-  });
+  const isError = useSelector(selectError);
 
-  const onAddContact = (formData) => {
-    const finalContact = {
-      ...formData,
-      id: nanoid(),
-    };
-
-    const action = addContact(finalContact);
-
-    dispatch(action);
-  };
-
-  const onDeleteContact = (contactId) => {
-    const action = deleteContact(contactId);
-    dispatch(action);
-  };
-
-  const onChangeFilter = (event) => {
-    const action = selectContacts(event.target.value);
-    dispatch(action);
-  };
-
-  const filteredContacts = useMemo(
-    () =>
-      contacts.filter((contact) => {
-        return contact.name.toLowerCase().includes(filter.toLowerCase());
-      }),
-    [filter, contacts]
-  );
+  useEffect(() => {
+    dispatch(apiFetchContacts());
+  }, [dispatch]);
 
   return (
     <>
       <h1>Phonebook</h1>
-      <ContactForm addContact={onAddContact} />
-      <SearchBox value={filter} onChange={onChangeFilter} />
-      <ContactList
-        contacts={filteredContacts}
-        deleteContact={onDeleteContact}
-      />
+      <ContactForm />
+      {isError && <ErrorMessage />}
+      {isLoading && <Loader />}
+
+      <SearchBox />
+      <ContactList />
     </>
   );
 }
