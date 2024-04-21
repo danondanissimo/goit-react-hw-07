@@ -1,8 +1,10 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import css from "./ContactForm.module.css";
+import { useDispatch } from "react-redux";
+import { apiAddContact } from "../../redux/contactsOps";
 
-const phoneRegExp = /^\d{3}-\d{2}-\d{2}$/;
+const phoneRegExp = /^\d{3}-\d{3}-\d{4}$/;
 const minNameLength = 3;
 const maxNameLength = 50;
 
@@ -16,11 +18,17 @@ const contactSchema = Yup.object({
     .matches(phoneRegExp, "Phone number is not valid"),
 });
 
-const ContactForm = ({ addContact }) => {
-  const handleSubmit = (values, actions) => {
-    addContact(values);
-
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const onAddContact = (values, actions) => {
+    const finalContact = {
+      ...values,
+      createdAt: new Date().toISOString(),
+    };
     actions.resetForm();
+    const action = apiAddContact(finalContact);
+
+    dispatch(action);
   };
 
   const FORM_INITIAL_VALUES = {
@@ -32,7 +40,7 @@ const ContactForm = ({ addContact }) => {
     <Formik
       initialValues={FORM_INITIAL_VALUES}
       validationSchema={contactSchema}
-      onSubmit={handleSubmit}
+      onSubmit={onAddContact}
     >
       <Form className={css.form}>
         <label className={css.label}>
